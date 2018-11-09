@@ -3,7 +3,7 @@ import pdi.segmentation as segmentation
     
 def sig_preprocess(img_arr):
     for (i, img) in enumerate(img_arr):
-        img_arr[i] = bbox(segmentation.otsu(grayscale(img)))
+        img_arr[i] = segmentation.otsu(grayscale(img))
 
 def grayscale(arr):
     return np.dot(arr[...,:3], [0.299, 0.587, 0.114])

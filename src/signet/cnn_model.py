@@ -1,9 +1,14 @@
 from six.moves import cPickle
 from theano import tensor as T
+import signet.signet_spp as signet_spp
+import util.path as path
 import lasagne
 import theano
-import six
 import numpy as np
+
+def extract_features(img_arr):
+    model = CNNModel(signet_spp, path.model())
+    return [model.get_feature_vector(img) for (i, img) in enumerate(img_arr)]
 
 class CNNModel:
     """ Represents a model trained with the Lasagne library. """
@@ -15,10 +20,7 @@ class CNNModel:
             model_weights_path (str): A file containing the trained weights
         """
         with open(model_weight_path, 'rb') as f:
-            if six.PY2:
-                model_params = cPickle.load(f)
-            else:
-                model_params = cPickle.load(f, encoding='latin1')
+            model_params = cPickle.load(f, encoding='latin1')
 
         self.input_size = model_params['input_size']
         self.img_size = model_params['img_size']
@@ -67,4 +69,4 @@ class CNNModel:
             self.forward_util_layer[layer] = theano.function([inputs], outputs)
 
         out = self.forward_util_layer[layer](input)
-        return out
+        return out    

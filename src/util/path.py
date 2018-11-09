@@ -8,7 +8,7 @@ def out():
 
 def model(m=None):
     model = "signet_spp.pkl" if m is None else m 
-    return os.path.join("..", "model", model)
+    return os.path.join("..", "src", "model", model)
 
 def fetch(path):
     return os.path.join(data(), path)
