@@ -31,5 +31,30 @@ def listFolder(folder, category="", data=None):
 
         return data
     except:
-        print("Diretório não existe:", folder)
+        print("Directory doesn't exist:", folder)
         sys.exit(1)
+
+def saveVariable(destination, name, variable):
+    os.makedirs(destination, exist_ok=True)
+
+    if (not isinstance(variable, str)):
+        variable = "\n".join(variable)
+
+    with open(os.path.join(destination, name), "w") as variable_file:
+        variable_file.write(variable)
+
+def compare(arr_1, arr_2):
+    log, matched = [], []
+
+    for (i, j) in zip(arr_1, arr_2):
+        m = "FAIL"
+        if (i == j):
+            matched.append(j)
+            m = "OK"
+        log.append("%s \t:\t %s | %s" % (i, j, m))
+
+    m = len(matched)
+    t = len(arr_1)
+    p = len(matched)/len(arr_1)
+    log.append("\nAccuracy: %s/%s (%f)" % (m, t, p))
+    return [log, matched, t, m, p]

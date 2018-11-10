@@ -34,7 +34,7 @@ def otsu(arr):
             current_max = varBetween
             threshold = i
 
-    threshold = threshold * 0.7
-    arr[arr <= threshold] = 1
-    arr[arr > threshold] = 0
+    threshold = threshold * 0.5
+    arr[arr <= threshold] = 0
+    arr[arr > threshold] = 1
     return arr

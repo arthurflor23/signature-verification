@@ -1,14 +1,8 @@
 from six.moves import cPickle
 from theano import tensor as T
-import signet.signet_spp as signet_spp
-import util.path as path
 import lasagne
 import theano
 import numpy as np
-
-def extract_features(img_arr):
-    model = CNNModel(signet_spp, path.model())
-    return [model.get_feature_vector(img) for (i, img) in enumerate(img_arr)]
 
 class CNNModel:
 
@@ -45,4 +39,4 @@ class CNNModel:
             self.forward_util_layer[layer] = theano.function([inputs], outputs)
 
         out = self.forward_util_layer[layer](input)
-        return out
+        return out[0]
