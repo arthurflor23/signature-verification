@@ -11,6 +11,7 @@ The code is written in Python 3. It's recommended to use the Anaconda python dis
 
 The extra libraries are required:
 
+* Graphviz
 * OpenCV
 * Theano
 * Lasagne
@@ -18,8 +19,8 @@ The extra libraries are required:
 They can be installed by running the following commands:
 
 ```
-conda install opencv
-pip install theano lasagne
+conda install opencv theano
+pip install graphviz https://github.com/Lasagne/Lasagne/archive/master.zip
 ```
 
 This project was tested on Arch Linux 64bits. This code can be used with or without GPUs - to use a GPU with Theano, follow the instructions in this [link](http://deeplearning.net/software/theano/tutorial/using_gpu.html). Note that Theano takes time to compile the model, so it is much faster to instantiate the model once and run forward propagation for many images (instead of calling many times a script that instantiates the model and run forward propagation for a single image).

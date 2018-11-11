@@ -60,7 +60,7 @@ def compare(arr_1, arr_2):
         if (i == j):
             matched.append(j)
             m = "OK"
-        log.append("%s \t:\t %s | %s" % (i, j, m))
+        log.append("%s \t:\t %s \t|\t %s" % (i, j, m))
 
     m = len(matched)
     t = len(arr_1)
