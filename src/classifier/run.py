@@ -24,7 +24,7 @@ def random_forest(dataset, extract, random_split=False, repeat=1, save=False):
         del data_te
 
         ### BEGIN ~ RANDOM SPLIT ###
-        if random_split:
+        if random_split: 
             features_tr, labels_tr, features_te, labels_te = random_forest.randomSplit(features_tr+features_te, labels_tr+labels_te)
         ### END ~ RANDOM SPLIT ###
 
@@ -42,7 +42,7 @@ def random_forest(dataset, extract, random_split=False, repeat=1, save=False):
         report.finish(compare[2], compare[3], compare[4])
 
         if save:
-            random_forest.save(report, "_deep_learning_"+str(i)+".txt")
+            random_forest.save(report, extract, i, random_split)
         else:
             for x in report.log: print(x)
 

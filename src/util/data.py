@@ -1,3 +1,5 @@
+from sklearn.tree import export_graphviz
+import graphviz
 import os
 import sys
 import cv2
@@ -5,7 +7,7 @@ import util.path as path
 import numpy as np
 
 def fetchFromPath(origin, suborigin=""):
-    p = path.fetch(origin)
+    p = os.path.join(path.data(), origin)
     dt_dir = os.path.join(p, suborigin)
     data = listFolder(dt_dir, origin)
     data[0] = fetchFromArray(data[0])
@@ -40,8 +42,15 @@ def saveVariable(destination, name, variable):
     if (not isinstance(variable, str)):
         variable = "\n".join(variable)
 
-    with open(os.path.join(destination, name), "w") as variable_file:
+    with open(os.path.join(destination, name + ".txt"), "w") as variable_file:
         variable_file.write(variable)
+
+def saveGraph(destination, name, tree, classes):
+    os.makedirs(destination, exist_ok=True)
+    dot_data = export_graphviz(tree, out_file=None, class_names=classes, filled=True, rounded=True, special_characters=True)
+    graph = graphviz.Source(dot_data)
+    graph.format = "png"
+    graph.render(os.path.join(destination, name))
 
 def compare(arr_1, arr_2):
     log, matched = [], []

@@ -7,7 +7,7 @@ import os
 class RandomForest():
 
     def __init__(self):
-        self.name = "random_forest"
+        self.name = "random_forest_"
         self.clf = RandomForestClassifier(criterion='entropy', n_estimators=1000, random_state=0)
 
         # self.clf = RandomForestClassifier(bootstrap=True, class_weight=None, criterion='entropy',
@@ -22,12 +22,15 @@ class RandomForest():
         return features_tr, labels_tr, features_te, labels_te
 
     def training(self, features_tr, labels_tr):
+        # self.features_name = 
         self.clf.fit(features_tr, labels_tr)
 
     def predict(self, features):
         return self.clf.predict(features)
 
-    def save(self, report, extension=""):
-        f_name = self.name + extension
-        destination = os.path.join(path.out(), self.name)
+    def save(self, report, extension="", version=0, graph=False):
+        f_name = self.name + extension + "_" + str(version) 
+        destination = os.path.join(path.out(), self.name + extension)
+
         data.saveVariable(destination, f_name, report.log)
+        if not graph: data.saveGraph(destination, f_name, self.clf.estimators_[0], self.clf.classes_)
