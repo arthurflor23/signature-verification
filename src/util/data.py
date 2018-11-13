@@ -1,10 +1,26 @@
 from sklearn.tree import export_graphviz
 import graphviz
+import time
 import os
 import sys
 import cv2
-import util.path as path
 import numpy as np
+import util.path as path
+import pdi.image as image
+
+DATASET = ""
+
+def loadDataset(dataset, extract):    
+    print("Loading data...")
+    images, labels = fetchFromPath(dataset)
+
+    print("Preprocessing data...")
+    images = image.preprocess(images)
+
+    print("Extracting data features...")
+    features = image.extract_features(extract, images)
+    del images
+    return features, labels
 
 def fetchFromPath(origin, suborigin=""):
     p = os.path.join(path.data(), origin)
@@ -14,7 +30,8 @@ def fetchFromPath(origin, suborigin=""):
     return data
 
 def fetchFromArray(arr):
-    return [np.array(cv2.imread(x)) for x in arr]
+    resize = lambda img: cv2.resize(img, dsize=(512, 512), interpolation=cv2.INTER_AREA)
+    return [np.array(resize(cv2.imread(x))) for x in arr]
 
 def listFolder(folder, category="", data=None):
     try:
@@ -52,18 +69,40 @@ def saveGraph(destination, name, tree, classes):
     graph.format = "png"
     graph.render(os.path.join(destination, name))
 
-def compare(arr_1, arr_2):
-    log, matched = [], []
+def saveNodeTree(destination, name, tree):
+    cl_root = "#f9bd77"
+    cl_left = "#fefedf"
+    cl_right = "#63a2d8"
+    cl_leaf = "#4a6f46"
+    cl_border = "#20202050"
 
-    for (i, j) in zip(arr_1, arr_2):
-        m = "FAIL"
-        if (i == j):
-            matched.append(j)
-            m = "OK"
-        log.append("%s \t:\t %s \t|\t %s" % (i, j, m))
+    def classesText(object_key, breakline=''):
+        return ''.join(['%s (%s) %s' % (key, object_key[key], breakline) for key in object_key])
 
-    m = len(matched)
-    t = len(arr_1)
-    p = len(matched)/len(arr_1)
-    log.append("\nAccuracy: %s/%s (%f)" % (m, t, p))
-    return [log, matched, t, m, p]
+    def plotNodes(node, dot, route, identifier=0, color=cl_root):
+        if (node.results != None):
+            dot.node(str(identifier), classesText(node.results, '\n'), shape="egg", style="filled", color=cl_border, fillcolor=cl_leaf, fontcolor="white")
+        else:
+            decision = 'i%s: x >= %s ?' % (node.col, node.value)
+            dot.node(str(identifier), decision, shape="box", style="filled", color=cl_border, fillcolor=color)
+            
+            leftID = identifier + 1 + time.time()
+            rightID = identifier + 1001 + time.time()
+
+            route.append([False, identifier, leftID])
+            route.append([True, identifier, rightID])
+
+            plotNodes(node.false_branch, dot, route, leftID, cl_left)
+            plotNodes(node.true_branch, dot, route, rightID, cl_right)
+
+    def plotEdges(dot, route):
+        for x in range(len(route)):
+            dot.edge(str(route[x][1]), str(route[x][2]), label=str(route[x][0]))
+
+    graph = graphviz.Digraph()
+    graph.format = 'png'
+    route = []
+
+    plotNodes(tree, graph, route)
+    plotEdges(graph, route)
+    graph.render(os.path.join(destination, name))

@@ -1,3 +1,4 @@
+from multiprocessing import Pool
 from signet.cnn_model import CNNModel
 import signet.signet_spp as signet_spp
 import matplotlib.pyplot as plt    
@@ -6,14 +7,11 @@ import util.path as path
 import numpy as np
 import sys
 
-def sig_preprocess(img_arr, extract):
-    min_width = 128 if (extract == "cnn") else None
-    for (i, img) in enumerate(img_arr):
-        img_arr[i] = bbox(segmentation.otsu(grayscale(img)), min_width=min_width)
+def preprocess(img_arr):
+    return __pool_process__(__pp__, img_arr)
 
-def plot(img, cmap="Greys_r"):
-    plt.imshow(img, cmap=cmap)
-    plt.show()
+def __pp__(img):
+    return bbox(segmentation.otsu(grayscale(img)))
 
 def grayscale(arr):
     return np.dot(arr[...,:3], [0.299, 0.587, 0.114])
@@ -51,9 +49,9 @@ def histogram(arr):
 def extract_features(extract, img_arr):
     if (extract == "cnn"):
         model = CNNModel(signet_spp, path.model())
-        return [model.get_feature_vector(img) for (i, img) in enumerate(img_arr)]
+        return [model.get_feature_vector(bbox(img, 128)) for (i, img) in enumerate(img_arr)]
     elif (extract == "mi_hu"):
-        return [huMoments(img) for (i, img) in enumerate(img_arr)]
+        return __pool_process__(huMoments, img_arr)
     else:
         print("Extractor option doesn't exist")
         sys.exit(1)
@@ -76,7 +74,7 @@ def huMoments(arr):
     i6 = (n20 - n02)*( ((n30+n12)**2) - (n21 + n03)**2 ) + 4*n11*(n30 + n12)*(n21 + n03)
     i7 = ((3*n21) - n03)*(n30 + n12)*(((n30 + n12)**2) - 3*((n21 + n03)**2)) + ((3*n12) - n30)*(n21 + n03)*(3*((n30 + n12)**2) - (n21 + n03)**2)
 
-    return [i1, i2, i3, i4, i5, i6, i7]
+    return np.array([i1, i2, i3, i4, i5, i6, i7])
 
 def centralMoment(arr, p, q):
     momCen, momPQ = 0, [0, 0, 0]
@@ -94,3 +92,14 @@ def centralMoment(arr, p, q):
             momCen += ((x - moment[0])**p) * ((y - moment[1])**q) * arr[y, x]
 
     return momCen
+
+def plot(img, cmap="Greys_r"):
+    plt.imshow(img, cmap=cmap)
+    plt.show()
+
+def __pool_process__(function, arr):
+    pool = Pool()
+    n_arr = pool.map(function, arr)
+    pool.close()
+    pool.join()
+    return n_arr

@@ -1,46 +1,59 @@
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import train_test_split
 import util.data as data
-import util.path as path
-import os
+import pdi.image as image
+from util.report import Report
+import classifier.tree as tree
+import time
 
-def random_split(features, labels):
-    features_tr, features_te, labels_tr, labels_te = train_test_split(features, labels, test_size=0.25)
-    return features_tr, labels_tr, features_te, labels_te
+def random_forest(features, labels, repeat=1, save=False):
+    __classifier__(tree.RandomForest, features, labels, repeat, save)
 
-class RandomForest():
+def cart(features, labels, repeat=1, save=False):
+    __classifier__(tree.CART, features, labels, repeat, save)
 
-    def __init__(self):
-        self.name = "random_forest_"
-        self.clf = RandomForestClassifier(criterion='entropy', n_estimators=1000, random_state=0)
+def c45(features, labels, repeat=1, save=False):
+    __classifier__(tree.C45, features, labels, repeat, save)
 
-    def training(self, features_tr, labels_tr):
-        self.clf.fit(features_tr, labels_tr)
+def __classifier__(tree_class, features, labels, repeat, save):
 
-    def predict(self, features):
-        return self.clf.predict(features)
+    for i in range(repeat):
+        print("\n> %s" % (i+1))
+        cl_tree = tree_class(len(features[0]))
 
-    def save(self, report, extension="", version=0, graph=False):
-        f_name = self.name + extension + "_" + str(version) 
-        destination = os.path.join(path.out(), self.name + extension)
-        data.saveVariable(destination, f_name, report.log)
-        if not graph: data.saveGraph(destination, f_name, self.clf.estimators_[0], self.clf.classes_)
+        report = Report(console=save)
+        report.information("Data size: %s" % (len(features)))
 
-class CART():
+        ### random split (training, test)
+        features_tr, labels_tr, features_te, labels_te = tree.random_split(0.3333, features, labels)
 
-    def __init__(self):
-        self.name = "cart_"
-        self.clf = DecisionTreeClassifier(criterion="entropy", random_state=0)
+        report.information("Sample size: %s (training), %s (test)" % (len(features_tr), len(features_te)))
+        report.information("Number of features: %s" % (len(features_tr[0])))
 
-    def training(self, features_tr, labels_tr):
-        self.clf.fit(features_tr, labels_tr)
+        training_start = time.time()
+        cl_tree.training(features_tr, labels_tr)
+        training_end = time.time() - training_start
 
-    def predict(self, features):
-        return self.clf.predict(features)
+        predict_start = time.time()
+        classified = cl_tree.predict(features_te)
+        predict_end = time.time() - predict_start
+        predict_end = time.time() - predict_start
 
-    def save(self, report, extension="", version=0, graph=False):
-        f_name = self.name + extension + "_" + str(version) 
-        destination = os.path.join(path.out(), self.name + extension)
-        data.saveVariable(destination, f_name, report.log)
-        if not graph: data.saveGraph(destination, f_name, self.clf, self.clf.classes_)
+        report.information("\nTraining time: %f s" % training_end)
+        report.information("Predict time: %f s\n" % predict_end)
+
+        result = check_classified(labels_te, classified)
+        report.finish(result)
+
+        if save:
+            cl_tree.save(report, (i+1), (i==0))
+        else:
+            for x in report.log: print(x)
+
+def check_classified(classes, classified):
+    log, matched = [], []
+    for (i, j) in zip(classes, classified):
+        m = "FAIL"
+        if (i == j):
+            matched.append(j)
+            m = "OK"
+        log.append("%s \t:\t %s \t|\t %s" % (i, j, m))
+    return [log, matched, len(classes), len(matched), (len(matched)/len(classes))]
