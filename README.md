@@ -3,8 +3,8 @@
 This repository contains codes to Handwritten Text Recognition to be used with CPUs.
 The code, in general, is open to new implementations of techniques, among these are classifiers using Decision Tree (C4.5, CART, Random Forest) and Neural Networks with Connectionist Temporal Classification.
 
-Reference repositories:
-Neural Network for Signature Characteristic Extraction: [luizgh](https://github.com/luizgh/sigver_wiwd)
+Reference repositories:<br />
+Neural Network for Signature Characteristic Extraction: [luizgh](https://github.com/luizgh/sigver_wiwd)<br />
 Handwritten Text Recognition with Word Beam Search: [githubharald](https://github.com/githubharald/SimpleHTR)
 
 ## Datasets
@@ -19,8 +19,7 @@ This project was tested on Arch Linux 64bits and was developed to be out of box 
 
 ### Pre-requisites
 
-The code is written in Python 3. It's recommended to use the Anaconda python distribution ([link](https://www.anaconda.com/download/)).
-
+The code is written in Python 3 and it's recommended to use the Anaconda python distribution ([link](https://www.anaconda.com/download/)).<br />
 The extra libraries are required:
 
 * Graphviz
