@@ -3,7 +3,7 @@ import pdi.image as image
 
 def otsu(arr):
     hist = image.histogram(arr)
-    total = (len(arr[0]) * len(arr[1]))
+    total = len(arr) * len(arr[0])
 
     current_max, threshold = 0, 0
     sumT, sumF, sumB = 0, 0, 0
