@@ -1,4 +1,4 @@
-## Decision Tree (CART, C4.5 and Random Forest)
+## Signature Verification with Decision Tree (CART, C4.5 and Random Forest)
 
 Intelligence Computation and Pattern Recognition class projects, master degree, UPE - POLI (2018.2)
 
